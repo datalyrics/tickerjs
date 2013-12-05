@@ -1,0 +1,18 @@
+/* 
+    Document   : style
+    Created on : 05.12.2013, 19:16:20
+    Author     : Eric Herrmann
+*/
+
+body {
+    background-color: #000000;
+    color: #00FF00;
+    font-family: Arial;
+}
+.ticker {
+    display: none;
+    width: 300px;
+    margin-right: 20px;
+    float: left;
+    min-height: 300px;
+}
