@@ -1,41 +1,52 @@
-/*
- * 
- * (c) 2013 Eric Herrmann
- * MIT License
- * to start: e.g. onload event: dlTicker.start()
- * needs divs with class="ticket" and style="display:none;"
- * 
+/**
+ * old school news ticker
+ * @module dlTicker
+ * @author (c) 2013 Eric Herrmann, MIT License
  */
 
+/**
+ * Description for ticker class.
+ *
+ * @class dlTicker
+ * @static
+ */
 var dlTicker = {
 
     /*
-     * 
+     * @property allTicker
+     * @type {Array}
      */
     allTicker: null,
 
     /*
-     * 
+     * @property currTicker
+     * @type {Integer}
      */
     currTicker: 0,
 
     /*
-     * 
+     * @property charPos
+     * @type {Integer}
      */
-    myY: 0,
+    charPos: 0,
 
     /*
-     * 
+     * @property dlTimer
+     * @type {Object}
      */
-    myTimer: null,
+    dlTimer: null,
 
     /*
-     * 
+     * @property
+     * @type {Integer}
+     * @default 10
      */
     speed: 10,
 
     /*
-     * 
+     * @method getElementsByClassName
+     * @param {String} class name
+     * @return {Array} of dom elements which has been found
      */
     getElementsByClassName: function(className) {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
@@ -56,7 +67,10 @@ var dlTicker = {
     },
 
     /*
-     * 
+     *
+     * @method start
+     * @param integer speed from 1..~100 in miliseconds
+     * @return returns nothing 
      */
     start: function(speed) {
         this.speed     = speed;
@@ -75,7 +89,8 @@ var dlTicker = {
     },
 
     /*
-     * 
+     * @method init
+     * @return returns nothing
      */
     init: function(divId) {
         var initDiv           = document.getElementById(divId);
@@ -84,20 +99,21 @@ var dlTicker = {
         var initLength        = initText.length;
         initDiv.innerHTML     = '';
         initDiv.style.display = 'block';
-        this.myY              = 0;
-        this.myTimer          = setInterval(function() {
+        this.charPos              = 0;
+        this.dlTimer          = setInterval(function() {
             dlTicker.loop(divId, initText, initLength);
         }, this.speed);
     },
 
     /*
-     * 
+     * @method: loop
+     * @return returns nothing
      */
     loop: function(divId, initText, initLength) {
         var charToAdd = '';
         
-        if(this.myY > (initLength - 1)) {
-            clearInterval(this.myTimer);
+        if(this.charPos > (initLength - 1)) {
+            clearInterval(this.dlTimer);
             
             if(this.currTicker+1 < this.allTicker.length) {
                 this.currTicker++;
@@ -106,9 +122,9 @@ var dlTicker = {
             return;
         }
         
-        charToAdd = initText.substring(this.myY, this.myY + 1);
+        charToAdd = initText.substring(this.charPos, this.charPos + 1);
         document.getElementById(divId).innerHTML = document.getElementById(divId).innerHTML + charToAdd;
-        this.myY++;
+        this.charPos++;
     }
    
   };
