@@ -1,0 +1,9 @@
+{
+  "name" : "tickerjs",
+  "version" : "0.0.1",
+  "private" : true,
+  "devDependencies" : {
+    "grunt" : "latest",
+    "grunt-contrib-jshint": "~0.7.0"
+  }
+}
