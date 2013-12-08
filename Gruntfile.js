@@ -2,6 +2,7 @@ module.exports = function (grunt) {
     'use strict';
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        clean: ['<%= pkg.documentationDir %>'],
         jshint: {
             files: [ '**/*.js', '!node_modules/**/*.js'],
             options: {
@@ -23,6 +24,8 @@ module.exports = function (grunt) {
         
         
     });
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.registerTask('default', [ 'jshint' ]);
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    grunt.registerTask('default', ['clean', 'jshint', 'yuidoc']);
 };
