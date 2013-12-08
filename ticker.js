@@ -40,7 +40,7 @@ var dlTicker = {
     getElementsByClassName: function(className) {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
             all     = document.getElementsByTagName("div"),
-            found   = new Array(),
+            found   = [],
             i;
         
         var divCount = all.length;
