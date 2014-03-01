@@ -23,12 +23,24 @@ var DLTicker = function() {
      * @type {Integer}
      */
     var currTicker = 0;
+    
+    /*
+     * @property allNodes
+     * @type {Array}
+     */
+    var allNodes = null;
+
+    /*
+     * @property currNode
+     * @type {Integer}
+     */
+    var currNode = 0;
 
     /*
      * @property charPos
      * @type {Integer}
      */
-    var charPos = 3;
+    var charPos = 0;
 
     /*
      * @property dlTimer
@@ -69,8 +81,7 @@ var DLTicker = function() {
     /*
      *
      * @method start
-     * @param integer speed from 1..~100 in miliseconds
-     * @return returns nothing 
+     * @param {Integer} speed from 1..~100 in miliseconds
      */
     this.start = function(setSpeed) {
         if (typeof setSpeed !== 'undefined') {
@@ -88,43 +99,86 @@ var DLTicker = function() {
 
     /*
      * @method init
-     * @return returns nothing
+     * @param {String} id of current div
      */
     var init = function(divId) {
-        var currDiv           = document.getElementById(divId);
-        var divText           = currDiv.innerHTML;
-        divText               = divText.replace(/(\r\n)|(\r)|(\n)/g, '');
-        var divTextLen        = divText.length;
-        currDiv.innerHTML     = '';
-        currDiv.style.display = 'block';
-        charPos               = 0;
-        dlTimer               = setInterval(function() {
-            printChar(divId, divText, divTextLen);
-        }, speed);
-    };
+        var currDiv = document.getElementById(divId);
+        allNodes    = currDiv.cloneNode().childNodes;
 
-    /*
-     * @method: printChar
-     * @return returns nothing
-     */
-    var printChar = function(divId, initText, initLength) {
-        var charToAdd = '';
-        
-        if(charPos > (initLength - 1)) {
-            clearInterval(dlTimer);
-            
-            if(currTicker+1 < allTickers.length) {
-                currTicker++;
-                init(allTickers[currTicker].id);
-            }
+        if (allNodes.length === 0) {
+            initNextTicker();
             return;
         }
         
-        charToAdd = initText.substring(charPos, charPos + 1);
-        document.getElementById(divId).innerHTML = document.getElementById(divId).innerHTML + charToAdd;
+        currNode              = 0;
+        currDiv.innerHTML     = '';
+        currDiv.style.display = 'block';
+        printNextNode(currDiv, currNode);
+    };
+
+    /*
+     * @method printNextNode
+     * @param {Object} current DOM div
+     */
+    var printNextNode = function(currDiv) {
+        if (allNodes[currNode].nodeName === '#text') {
+            var textNode    = document.createTextNode('');
+            currDiv.appendChild(textNode);
+            var nodeText    = allNodes[currNode].nodeValue;
+            nodeText        = nodeText.replace(/(\r\n)|(\r)|(\n)/g, '');
+            var nodeTextLen = nodeText.length;
+            charPos         = 0;
+            dlTimer         = setInterval(function() {
+                printChar(currDiv, nodeText, nodeTextLen, textNode);
+            }, speed);
+        } else {
+            currDiv.appendChild(allNodes[currNode].cloneNode());
+            initNextNode(currDiv);
+        }
+    };
+
+    /*
+     * @method initNextNode
+     * @param {Object} current DOM div
+     */
+    var initNextNode = function(currDiv) {
+            if (currNode+1 < allNodes.length) {
+                currNode++;
+                printNextNode(currDiv);
+            } else {
+                currNode = 0;
+                initNextTicker();
+            }
+    }
+
+    /*
+     * @method printChar
+     * @param {Object} current DOM div
+     * @param {String}
+     * @param {Integer}
+     * @param {Object} DOM node
+     */
+    var printChar = function(currDiv, nodeText, nodeTextLen, textNode) {
+        if (charPos > (nodeTextLen - 1)) {
+            clearInterval(dlTimer);
+            initNextNode(currDiv);
+            return;
+        }
+        textNode.nodeValue = textNode.nodeValue + nodeText.substring(charPos, charPos + 1);
         charPos++;
     };
-   
+    
+    /*
+     * @method initNextTicker
+     */
+    var initNextTicker = function() {
+        if(currTicker+1 < allTickers.length) {
+            currTicker++;
+            init(allTickers[currTicker].id);
+        }
+    };
+    
   };
+
 var dlTicker = new DLTicker();
 dlTicker.start(10);
