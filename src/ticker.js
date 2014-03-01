@@ -149,7 +149,7 @@ var DLTicker = function() {
                 currNode = 0;
                 initNextTicker();
             }
-    }
+    };
 
     /*
      * @method printChar
