@@ -6,7 +6,7 @@
 
 body {
     background-color: #000000;
-    color: #00FF00;
+    color: #00DD00;
     font-family: Arial;
 }
 .ticker {
@@ -15,4 +15,8 @@ body {
     margin-right: 20px;
     float: left;
     min-height: 300px;
+}
+a {
+    color: #00FF00;
+    text-decoration: none;
 }
