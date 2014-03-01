@@ -1,54 +1,54 @@
 /**
  * old school news ticker
  * @module dlTicker
- * @author (c) 2013 Eric Herrmann, MIT License
+ * @author (c) 2014 Eric Herrmann, MIT License
  */
 
 /**
  * Description for ticker class.
  *
- * @class dlTicker
+ * @class DLTicker
  * @static
  */
-var dlTicker = {
+var DLTicker = function() {
 
     /*
-     * @property allTicker
+     * @property allTickers
      * @type {Array}
      */
-    allTicker: null,
+    var allTickers = null;
 
     /*
      * @property currTicker
      * @type {Integer}
      */
-    currTicker: 0,
+    var currTicker = 0;
 
     /*
      * @property charPos
      * @type {Integer}
      */
-    charPos: 0,
+    var charPos = 3;
 
     /*
      * @property dlTimer
      * @type {Object}
      */
-    dlTimer: null,
+    var dlTimer = null;
 
     /*
      * @property
      * @type {Integer}
      * @default 10
      */
-    speed: 10,
+    var speed = 10;
 
     /*
      * @method getElementsByClassName
      * @param {String} class name
      * @return {Array} of dom elements which has been found
      */
-    getElementsByClassName: function(className) {
+    var getElementsByClassName = function(className) {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
             all     = document.getElementsByTagName("div"),
             found   = [],
@@ -58,13 +58,13 @@ var dlTicker = {
         
         for (i = 0; i < divCount; i++) {
             if (all[i] && all[i].className && all[i].className !== "") {
-                if (all[i].className.match(pattern)) {
+                if (all[i].className.match(pattern) && all[i].id !== '') {
                     found[found.length] = all[i];
                 }
             }
         }
         return found;
-    },
+    };
 
     /*
      *
@@ -72,59 +72,59 @@ var dlTicker = {
      * @param integer speed from 1..~100 in miliseconds
      * @return returns nothing 
      */
-    start: function(speed) {
-        this.speed     = speed;
-        this.allTicker = this.getElementsByClassName('ticker');
-        
-        if (this.allTicker.length > 0) {
-            if (this.allTicker[this.currTicker].id !== '') {
-                this.init(this.allTicker[this.currTicker].id);
-            } else {
-                if(this.currTicker + 1 < this.allTicker.length) {
-                    this.currTicker++;
-                    this.init(this.allTicker[this.currTicker].id);
-                }
-            }
+    this.start = function(setSpeed) {
+        if (typeof setSpeed !== 'undefined') {
+            speed = setSpeed;
         }
-    },
+        
+        allTickers = getElementsByClassName('ticker');
+        
+        if (allTickers.length === 0) {
+            return;
+        }
+            
+        init(allTickers[currTicker].id);
+    };
 
     /*
      * @method init
      * @return returns nothing
      */
-    init: function(divId) {
-        var initDiv           = document.getElementById(divId);
-        var initText          = initDiv.innerHTML;
-        initText = initText.replace(/(\r\n)|(\r)|(\n)/g, '');
-        var initLength        = initText.length;
-        initDiv.innerHTML     = '';
-        initDiv.style.display = 'block';
-        this.charPos              = 0;
-        this.dlTimer          = setInterval(function() {
-            dlTicker.loop(divId, initText, initLength);
-        }, this.speed);
-    },
+    var init = function(divId) {
+        var currDiv           = document.getElementById(divId);
+        var divText           = currDiv.innerHTML;
+        divText               = divText.replace(/(\r\n)|(\r)|(\n)/g, '');
+        var divTextLen        = divText.length;
+        currDiv.innerHTML     = '';
+        currDiv.style.display = 'block';
+        charPos               = 0;
+        dlTimer               = setInterval(function() {
+            printChar(divId, divText, divTextLen);
+        }, speed);
+    };
 
     /*
-     * @method: loop
+     * @method: printChar
      * @return returns nothing
      */
-    loop: function(divId, initText, initLength) {
+    var printChar = function(divId, initText, initLength) {
         var charToAdd = '';
         
-        if(this.charPos > (initLength - 1)) {
-            clearInterval(this.dlTimer);
+        if(charPos > (initLength - 1)) {
+            clearInterval(dlTimer);
             
-            if(this.currTicker+1 < this.allTicker.length) {
-                this.currTicker++;
-                this.init(this.allTicker[this.currTicker].id);
+            if(currTicker+1 < allTickers.length) {
+                currTicker++;
+                init(allTickers[currTicker].id);
             }
             return;
         }
         
-        charToAdd = initText.substring(this.charPos, this.charPos + 1);
+        charToAdd = initText.substring(charPos, charPos + 1);
         document.getElementById(divId).innerHTML = document.getElementById(divId).innerHTML + charToAdd;
-        this.charPos++;
-    }
+        charPos++;
+    };
    
   };
+var dlTicker = new DLTicker();
+dlTicker.start(10);
