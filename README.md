@@ -1,7 +1,8 @@
 tickerjs
 ========
 
-old school news ticker
+old school computer screen text display 
+
 
 running jshint:
 
