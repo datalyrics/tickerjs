@@ -62,14 +62,14 @@ var DLTicker = function() {
      */
     var getElementsByClassName = function(className) {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
-            all     = document.getElementsByTagName("div"),
+            all     = document.getElementsByTagName('div'),
             found   = [],
             i;
         
         var divCount = all.length;
         
         for (i = 0; i < divCount; i++) {
-            if (all[i] && all[i].className && all[i].className !== "") {
+            if (all[i] && all[i].className && all[i].className !== '') {
                 if (all[i].className.match(pattern) && all[i].id !== '') {
                     found[found.length] = all[i];
                 }
@@ -117,20 +117,36 @@ var DLTicker = function() {
     };
 
     /*
+     * @method initPrintChar
+     * @param {Object} current DOM div
+     * @param {String}
+     * @param {Object} DOM node
+     * @param {String} content attribute
+     */
+    var initPrintChar = function(currDiv, nodeText, newNode, content_attribute) {
+        nodeText        = nodeText.replace(/(\r\n)|(\r)|(\n)/g, '');
+        var nodeTextLen = nodeText.length;
+        charPos         = 0;
+        dlTimer         = setInterval(function() {
+            printChar(currDiv, nodeText, nodeTextLen, newNode, content_attribute);
+        }, speed);
+    };
+
+    /*
      * @method printNextNode
      * @param {Object} current DOM div
      */
     var printNextNode = function(currDiv) {
         if (allNodes[currNode].nodeName === '#text') {
-            var textNode    = document.createTextNode('');
-            currDiv.appendChild(textNode);
-            var nodeText    = allNodes[currNode].nodeValue;
-            nodeText        = nodeText.replace(/(\r\n)|(\r)|(\n)/g, '');
-            var nodeTextLen = nodeText.length;
-            charPos         = 0;
-            dlTimer         = setInterval(function() {
-                printChar(currDiv, nodeText, nodeTextLen, textNode);
-            }, speed);
+            var nodeText = allNodes[currNode].nodeValue;
+            var newNode  = document.createTextNode('');
+            currDiv.appendChild(newNode);
+            initPrintChar(currDiv, nodeText, newNode, 'nodeValue');
+        } else if (allNodes[currNode].nodeName === 'A') {
+            var nodeText = allNodes[currNode].text;
+            allNodes[currNode].text = '';
+            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode());
+            initPrintChar(currDiv, nodeText, newNode, 'text');
         } else {
             currDiv.appendChild(allNodes[currNode].cloneNode());
             initNextNode(currDiv);
@@ -142,13 +158,13 @@ var DLTicker = function() {
      * @param {Object} current DOM div
      */
     var initNextNode = function(currDiv) {
-            if (currNode+1 < allNodes.length) {
-                currNode++;
-                printNextNode(currDiv);
-            } else {
-                currNode = 0;
-                initNextTicker();
-            }
+        if (currNode+1 < allNodes.length) {
+            currNode++;
+            printNextNode(currDiv);
+        } else {
+            currNode = 0;
+            initNextTicker();
+        }
     };
 
     /*
@@ -157,14 +173,15 @@ var DLTicker = function() {
      * @param {String}
      * @param {Integer}
      * @param {Object} DOM node
+     * @param {String} content attribute
      */
-    var printChar = function(currDiv, nodeText, nodeTextLen, textNode) {
+    var printChar = function(currDiv, nodeText, nodeTextLen, newNode, content_attribute) {
         if (charPos > (nodeTextLen - 1)) {
             clearInterval(dlTimer);
             initNextNode(currDiv);
             return;
         }
-        textNode.nodeValue = textNode.nodeValue + nodeText.substring(charPos, charPos + 1);
+        newNode[content_attribute] = newNode[content_attribute] + nodeText.substring(charPos, charPos + 1);
         charPos++;
     };
     
@@ -181,4 +198,4 @@ var DLTicker = function() {
   };
 
 var dlTicker = new DLTicker();
-dlTicker.start(10);
+dlTicker.start(20);
