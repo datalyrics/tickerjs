@@ -54,6 +54,12 @@ var DLTicker = function() {
      * @default 10
      */
     var speed = 10;
+    
+    /*
+     * @property
+     * @type {function}
+     */
+    var finishCallback;
 
     /*
      * @method getElementsByClassName
@@ -82,10 +88,14 @@ var DLTicker = function() {
      *
      * @method start
      * @param {Integer} speed from 1..~100 in miliseconds
+     * @param {function} optional callback
      */
-    this.start = function(setSpeed) {
+    this.start = function(setSpeed, callback) {
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
+        }
+        if (typeof callback === 'function') {
+            finishCallback = callback;
         }
         
         allTickers = getElementsByClassName('ticker');
@@ -192,10 +202,15 @@ var DLTicker = function() {
         if(currTicker+1 < allTickers.length) {
             currTicker++;
             init(allTickers[currTicker].id);
+        } else {
+            if (typeof finishCallback !== 'undefined') {
+                finishCallback();
+            }
         }
     };
     
   };
 
 var dlTicker = new DLTicker();
-dlTicker.start(20);
+
+dlTicker.start(20, function() {console.log('end');} );
