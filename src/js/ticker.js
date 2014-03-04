@@ -68,6 +68,12 @@ var DLTicker = function() {
     var that = this;
 
     /*
+     * @property
+     * @type {array} ids of ticker classes which should be tickered
+     */
+    var tickerIds = [];
+    
+    /*
      * @method getElementsByClassName
      * @param {String} class name
      * @return {Array} of dom elements which has been found
@@ -76,14 +82,24 @@ var DLTicker = function() {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
             all     = document.getElementsByTagName('div'),
             found   = [],
-            i;
+            i,
+            j;
         
         var divCount = all.length;
+        var tiIdsLen = tickerIds.length;
         
         for (i = 0; i < divCount; i++) {
             if (all[i] && all[i].className && all[i].className !== '') {
                 if (all[i].className.match(pattern) && all[i].id !== '') {
-                    found[found.length] = all[i];
+                    if (tiIdsLen === 0) {
+                        found[found.length] = all[i];
+                    } else {
+                        for (j = 0; j < tiIdsLen; j++) {
+                            if (tickerIds[j] == all[i].id) {
+                                found[found.length] = all[i];
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -93,15 +109,19 @@ var DLTicker = function() {
     /*
      *
      * @method start
-     * @param {Integer} speed from 1..~100 in miliseconds
-     * @param {function} optional callback
+     * @param {Integer} optional speed from 1..~100 in miliseconds
+     * @param {Function} optional callback routine
+     * @param {Array} optional ticker ids
      */
-    this.start = function(setSpeed, callback) {
+    this.start = function(setSpeed, callback, setTickerIds) {
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
         }
         if (typeof callback === 'function') {
             finishCallback = callback;
+        }
+        if (1===1) {
+            tickerIds = setTickerIds;
         }
         
         allTickers = getElementsByClassName('ticker');
@@ -129,9 +149,9 @@ var DLTicker = function() {
             that.soundstart();
         }
         
-        currNode              = 0;
-        currDiv.innerHTML     = '';
-        currDiv.style.display = 'block';
+        currNode                 = 0;
+        currDiv.innerHTML        = '';
+        currDiv.style.visibility = 'visible';
         printNextNode(currDiv, currNode);
     };
 
