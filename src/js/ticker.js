@@ -120,12 +120,12 @@ var DLTicker = function() {
         if (typeof callback === 'function') {
             finishCallback = callback;
         }
-        if (1===1) {
+        if (typeof setTickerIds === 'object') {
             tickerIds = setTickerIds;
         }
         
         allTickers = getElementsByClassName('ticker');
-        
+
         if (allTickers.length === 0) {
             return;
         }
@@ -139,12 +139,13 @@ var DLTicker = function() {
      */
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
-        allNodes    = currDiv.cloneNode().childNodes;
+        allNodes    = currDiv.cloneNode(true).childNodes;
 
         if (allNodes.length === 0) {
             initNextTicker();
             return;
         }
+        
         if (typeof that.soundstart === 'function') {
             that.soundstart();
         }
@@ -184,10 +185,10 @@ var DLTicker = function() {
         } else if (allNodes[currNode].nodeName === 'A') {
             var nodeText = allNodes[currNode].text;
             allNodes[currNode].text = '';
-            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode());
+            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode(true));
             initPrintChar(currDiv, nodeText, newNode, 'text');
         } else {
-            currDiv.appendChild(allNodes[currNode].cloneNode());
+            currDiv.appendChild(allNodes[currNode].cloneNode(true));
             initNextNode(currDiv);
         }
     };
