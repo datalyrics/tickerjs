@@ -66,7 +66,13 @@ var DLTicker = function() {
      * @type {object} saves the reference to the object created with new
      */
     var that = this;
-
+    
+     /*
+      * @property
+      * @type {array} ids of ticker classes which should be tickered
+      */
+    var tickerIds = [];
+ 
     /*
      * @method getElementsByClassName
      * @param {String} class name
@@ -76,14 +82,24 @@ var DLTicker = function() {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
             all     = document.getElementsByTagName('div'),
             found   = [],
-            i;
+            i,
+            j;
         
         var divCount = all.length;
+        var tiIdsLen = tickerIds.length;
         
         for (i = 0; i < divCount; i++) {
             if (all[i] && all[i].className && all[i].className !== '') {
                 if (all[i].className.match(pattern) && all[i].id !== '') {
-                    found[found.length] = all[i];
+                    if (tiIdsLen === 0) {
+                        found[found.length] = all[i];
+                    } else {
+                        for (j = 0; j < tiIdsLen; j++) {
+                            if (tickerIds[j] === all[i].id) {
+                                found[found.length] = all[i];
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -94,9 +110,10 @@ var DLTicker = function() {
      *
      * @method start
      * @param {Integer} speed from 1..~100 in miliseconds
-     * @param {function} optional callback
+     * @param {function} optional callback routine
+     * @param {Array} optional ticker ids
      */
-    this.start = function(setSpeed, callback) {
+    this.start = function(setSpeed, callback, setTickerIds) {
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
         }
@@ -104,8 +121,12 @@ var DLTicker = function() {
             finishCallback = callback;
         }
         
-        allTickers = getElementsByClassName('ticker');
+        if (setTickerIds !== null && typeof setTickerIds === 'object' && setTickerIds.length !== null) {
+            tickerIds = setTickerIds;
+        }        
         
+        allTickers = getElementsByClassName('ticker');
+
         if (allTickers.length === 0) {
             return;
         }
@@ -120,7 +141,7 @@ var DLTicker = function() {
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
         allNodes    = currDiv.cloneNode(true).childNodes;
-
+        
         // start ticker sound if available
         if (typeof that.soundstart === 'function') {
             that.soundstart();
@@ -137,17 +158,17 @@ var DLTicker = function() {
             initNextTicker();
             return;
         }
-
+        
         // draw nodes
-        currNode              = 0;
-        currDiv.innerHTML     = '';
-        currDiv.style.display = 'block';
+        currNode                 = 0;
+        currDiv.innerHTML        = '';
+        currDiv.style.visibility = 'visible';
         printNextNode(currDiv, currNode);
     };
 
     /*
      * @method drawAnim
-     * @param {String} sprite data e.g. "270-118-40" "width-imagecount-interval"
+     * @param {String} sprite data e.g. "270-119-40" "width-imagecount-interval"
      * @param {Object}
      */
     var drawAnim = function(spriteData, currDiv) {
@@ -155,7 +176,7 @@ var DLTicker = function() {
         var data        = spriteData.split('-');
         var picWidth    = data[0];
         var left        = 0;
-        var interations = data[1];
+        var interations = data[1] - 1;
         var interval    = data[2];
         var maxValue    = interations * picWidth * -1;
         var spriteTimer;
@@ -169,8 +190,6 @@ var DLTicker = function() {
         }, interval);
         
     };
-
-
 
     /*
      * @method initPrintChar
