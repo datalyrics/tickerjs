@@ -119,7 +119,7 @@ var DLTicker = function() {
      */
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
-        allNodes    = currDiv.cloneNode().childNodes;
+        allNodes    = currDiv.cloneNode(true).childNodes;
 
         // start ticker sound if available
         if (typeof that.soundstart === 'function') {
@@ -201,10 +201,10 @@ var DLTicker = function() {
         } else if (allNodes[currNode].nodeName === 'A') {
             var nodeText = allNodes[currNode].text;
             allNodes[currNode].text = '';
-            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode());
+            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode(true));
             initPrintChar(currDiv, nodeText, newNode, 'text');
         } else {
-            currDiv.appendChild(allNodes[currNode].cloneNode());
+            currDiv.appendChild(allNodes[currNode].cloneNode(true));
             initNextNode(currDiv);
         }
     };
