@@ -68,12 +68,6 @@ var DLTicker = function() {
     var that = this;
 
     /*
-     * @property
-     * @type {array} ids of ticker classes which should be tickered
-     */
-    var tickerIds = [];
-    
-    /*
      * @method getElementsByClassName
      * @param {String} class name
      * @return {Array} of dom elements which has been found
@@ -82,24 +76,14 @@ var DLTicker = function() {
         var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)"),
             all     = document.getElementsByTagName('div'),
             found   = [],
-            i,
-            j;
+            i;
         
         var divCount = all.length;
-        var tiIdsLen = tickerIds.length;
         
         for (i = 0; i < divCount; i++) {
             if (all[i] && all[i].className && all[i].className !== '') {
                 if (all[i].className.match(pattern) && all[i].id !== '') {
-                    if (tiIdsLen === 0) {
-                        found[found.length] = all[i];
-                    } else {
-                        for (j = 0; j < tiIdsLen; j++) {
-                            if (tickerIds[j] == all[i].id) {
-                                found[found.length] = all[i];
-                            }
-                        }
-                    }
+                    found[found.length] = all[i];
                 }
             }
         }
@@ -109,23 +93,19 @@ var DLTicker = function() {
     /*
      *
      * @method start
-     * @param {Integer} optional speed from 1..~100 in miliseconds
-     * @param {Function} optional callback routine
-     * @param {Array} optional ticker ids
+     * @param {Integer} speed from 1..~100 in miliseconds
+     * @param {function} optional callback
      */
-    this.start = function(setSpeed, callback, setTickerIds) {
+    this.start = function(setSpeed, callback) {
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
         }
         if (typeof callback === 'function') {
             finishCallback = callback;
         }
-        if (typeof setTickerIds === 'object') {
-            tickerIds = setTickerIds;
-        }
         
         allTickers = getElementsByClassName('ticker');
-
+        
         if (allTickers.length === 0) {
             return;
         }
@@ -139,22 +119,58 @@ var DLTicker = function() {
      */
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
-        allNodes    = currDiv.cloneNode(true).childNodes;
+        allNodes    = currDiv.cloneNode().childNodes;
 
+        // start ticker sound if available
+        if (typeof that.soundstart === 'function') {
+            that.soundstart();
+        }
+
+        // identify animation
+        if (currDiv.getAttribute('data-dl-anim') !== null) {
+            drawAnim(currDiv.getAttribute('data-dl-anim'), currDiv);
+            return;
+        }
+
+        // ensure that there are nodes in this div
         if (allNodes.length === 0) {
             initNextTicker();
             return;
         }
-        
-        if (typeof that.soundstart === 'function') {
-            that.soundstart();
-        }
-        
-        currNode                 = 0;
-        currDiv.innerHTML        = '';
-        currDiv.style.visibility = 'visible';
+
+        // draw nodes
+        currNode              = 0;
+        currDiv.innerHTML     = '';
+        currDiv.style.display = 'block';
         printNextNode(currDiv, currNode);
     };
+
+    /*
+     * @method drawAnim
+     * @param {String} sprite data e.g. "270-118-40" "width-imagecount-interval"
+     * @param {Object}
+     */
+    var drawAnim = function(spriteData, currDiv) {
+        var thatDiv     = currDiv;
+        var data        = spriteData.split('-');
+        var picWidth    = data[0];
+        var left        = 0;
+        var interations = data[1];
+        var interval    = data[2];
+        var maxValue    = interations * picWidth * -1;
+        var spriteTimer;
+        initNextTicker();
+
+        spriteTimer = setInterval(function() {
+          thatDiv.style.backgroundPosition = ( left -= picWidth ) + "px 0px";
+          if ( left <= maxValue ) {
+            clearInterval( spriteTimer );
+          }
+        }, interval);
+        
+    };
+
+
 
     /*
      * @method initPrintChar
@@ -185,10 +201,10 @@ var DLTicker = function() {
         } else if (allNodes[currNode].nodeName === 'A') {
             var nodeText = allNodes[currNode].text;
             allNodes[currNode].text = '';
-            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode(true));
+            var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode());
             initPrintChar(currDiv, nodeText, newNode, 'text');
         } else {
-            currDiv.appendChild(allNodes[currNode].cloneNode(true));
+            currDiv.appendChild(allNodes[currNode].cloneNode());
             initNextNode(currDiv);
         }
     };
