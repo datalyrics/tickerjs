@@ -72,6 +72,12 @@ var DLTicker = function() {
       * @type {array} ids of ticker classes which should be tickered
       */
     var tickerIds = [];
+    
+     /*
+      * @property
+      * @type {integer} used to detect how many tickers are still running
+      */
+    var animStackCount = 0;
  
     /*
      * @method getElementsByClassName
@@ -126,20 +132,22 @@ var DLTicker = function() {
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
         }
+        
         if (typeof callback === 'function') {
             finishCallback = callback;
         }
-        
+
         if (setTickerIds !== null && typeof setTickerIds === 'object' && setTickerIds.length !== null) {
             tickerIds = setTickerIds;
         }        
-        
+
         allTickers = getElementsByClassName('ticker');
 
         if (allTickers.length === 0) {
             return;
         }
-            
+
+        animStackCount++;
         init(allTickers[currTicker].id);
     };
 
@@ -159,6 +167,7 @@ var DLTicker = function() {
         // identify animation
         if (currDiv.getAttribute('data-dl-anim') !== null) {
             drawAnim(currDiv.getAttribute('data-dl-anim'), currDiv);
+            animStackCount++;
             return;
         }
 
@@ -195,6 +204,7 @@ var DLTicker = function() {
           thatDiv.style.backgroundPosition = ( left -= picWidth ) + "px 0px";
           if ( left <= maxValue ) {
             clearInterval( spriteTimer );
+            aTickerHasStopped();
           }
         }, interval);
         
@@ -277,6 +287,16 @@ var DLTicker = function() {
             currTicker++;
             init(allTickers[currTicker].id);
         } else {
+            aTickerHasStopped();
+        }
+    };
+    
+    /*
+     * @method aTickerHasStopped
+     */
+    var aTickerHasStopped = function() {
+        animStackCount--;
+        if (animStackCount === 0) {
             if (typeof that.soundstop === 'function') {
                 that.soundstop();
             }
