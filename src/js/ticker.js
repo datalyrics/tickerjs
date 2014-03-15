@@ -78,7 +78,13 @@ var DLTicker = function() {
       * @type {integer} used to detect how many tickers are still running
       */
     var animStackCount = 0;
- 
+
+     /*
+      * @property
+      * @type {boolean} used to set global sound on or off
+      */
+    var soundSwitch = true;
+    
     /*
      * @method getElementsByClassName
      * @param {String} class name
@@ -152,6 +158,22 @@ var DLTicker = function() {
     };
 
     /*
+     *
+     * @method toggleSound
+     */
+    this.toggleSound = function() {
+        if (soundSwitch === true) {
+            soundSwitch = false;
+            that.soundstop();
+        } else {
+            if (animStackCount > 0) {
+                soundSwitch = true;
+                that.soundstart();
+            }
+        }
+    };
+
+    /*
      * @method init
      * @param {String} id of current div
      */
@@ -160,7 +182,7 @@ var DLTicker = function() {
         allNodes    = currDiv.cloneNode(true).childNodes;
         
         // start ticker sound if available
-        if (typeof that.soundstart === 'function') {
+        if (typeof that.soundstart === 'function' && soundSwitch === true) {
             that.soundstart();
         }
 
