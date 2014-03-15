@@ -87,17 +87,26 @@ var DLTicker = function() {
         
         var divCount = all.length;
         var tiIdsLen = tickerIds.length;
-        
-        for (i = 0; i < divCount; i++) {
-            if (all[i] && all[i].className && all[i].className !== '') {
-                if (all[i].className.match(pattern) && all[i].id !== '') {
-                    if (tiIdsLen === 0) {
+
+        // no user defined tickers, so take all of them
+        if (tiIdsLen === 0) {
+            for (i = 0; i < divCount; i++) {
+                if (all[i] && all[i].className && all[i].className !== '') {
+                    if (all[i].className.match(pattern) && all[i].id !== '') {
                         found[found.length] = all[i];
-                    } else {
-                        for (j = 0; j < tiIdsLen; j++) {
-                            if (tickerIds[j] === all[i].id) {
-                                found[found.length] = all[i];
-                            }
+                    }
+                }
+            }
+            return found;
+        }
+        
+        // user defined tickers
+        for (j = 0; j < tiIdsLen; j++) {
+            for (i = 0; i < divCount; i++) {
+                if (all[i] && all[i].className && all[i].className !== '') {
+                    if (all[i].className.match(pattern) && all[i].id !== '') {
+                        if (tickerIds[j] === all[i].id) {
+                            found[found.length] = all[i];
                         }
                     }
                 }
@@ -218,10 +227,10 @@ var DLTicker = function() {
             currDiv.appendChild(newNode);
             initPrintChar(currDiv, nodeText, newNode, 'nodeValue');
         } else if (allNodes[currNode].nodeName === 'A') {
-            var nodeText = allNodes[currNode].text;
-            allNodes[currNode].text = '';
+            var nodeText = allNodes[currNode].textContent;
+            allNodes[currNode].textContent = '';
             var newNode  = currDiv.appendChild(allNodes[currNode].cloneNode(true));
-            initPrintChar(currDiv, nodeText, newNode, 'text');
+            initPrintChar(currDiv, nodeText, newNode, 'textContent');
         } else {
             currDiv.appendChild(allNodes[currNode].cloneNode(true));
             initNextNode(currDiv);
