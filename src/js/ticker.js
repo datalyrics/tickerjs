@@ -57,33 +57,44 @@ var DLTicker = function() {
     
     /*
      * @property
-     * @type {function}
+     * @type {Function}
      */
     var finishCallback;
 
     /*
      * @property
-     * @type {object} saves the reference to the object created with new
+     * @type {Object} saves the reference to the object created with new
      */
     var that = this;
     
      /*
       * @property
-      * @type {array} ids of ticker classes which should be tickered
+      * @type {Array} ids of ticker classes which should be tickered
       */
     var tickerIds = [];
     
      /*
       * @property
-      * @type {integer} used to detect how many tickers are still running
+      * @type {Integer} used to detect how many tickers are still running
       */
-    var animStackCount = 0;
+    var tickerStackCount = 0;
 
      /*
       * @property
-      * @type {boolean} used to set global sound on or off
+      * @type {Boolean} used to set global sound on or off
       */
     var soundSwitch = true;
+
+    /*
+     * @method initObjectVars
+     */
+    var initObjectVars = function() {
+        allTickers = null;
+        currTicker = 0;
+        allNodes   = null;
+        currNode   = 0;
+        charPos    = 0;
+    };
     
     /*
      * @method getElementsByClassName
@@ -135,6 +146,30 @@ var DLTicker = function() {
      * @param {Array} optional ticker ids
      */
     this.start = function(setSpeed, callback, setTickerIds) {
+        
+        /*
+         * in case tickerjs is already running add additional tickers
+         * e.g. state change in angularjs
+         */ 
+        var aTickerIsRunning    = (tickerStackCount > 0)?true:false;
+        if (aTickerIsRunning)  {
+            if (setTickerIds !== null) {
+                var newTickerLen = setTickerIds.length,
+                    i,
+                    el;
+                for (i=0; i < newTickerLen; i++) {
+                    el = document.getElementById(setTickerIds[i]);
+                    allTickers[allTickers.length] = el;
+                }
+                return;
+            } else {
+                return;
+            }
+        }
+
+        // 
+        initObjectVars();
+        
         if (typeof setSpeed !== 'undefined') {
             speed = setSpeed;
         }
@@ -153,7 +188,7 @@ var DLTicker = function() {
             return;
         }
 
-        animStackCount++;
+        tickerStackCount++;
         init(allTickers[currTicker].id);
     };
 
@@ -166,7 +201,7 @@ var DLTicker = function() {
             soundSwitch = false;
             that.soundstop();
         } else {
-            if (animStackCount > 0) {
+            if (tickerStackCount > 0) {
                 soundSwitch = true;
                 that.soundstart();
             }
@@ -179,6 +214,11 @@ var DLTicker = function() {
      */
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
+        // avoiding errors when switching states to fast
+        if (currDiv === null) {
+            aTickerHasStopped();
+            return;
+        }
         allNodes    = currDiv.cloneNode(true).childNodes;
         
         // start ticker sound if available
@@ -189,7 +229,7 @@ var DLTicker = function() {
         // identify animation
         if (currDiv.getAttribute('data-dl-anim') !== null) {
             drawAnim(currDiv.getAttribute('data-dl-anim'), currDiv);
-            animStackCount++;
+            tickerStackCount++;
             return;
         }
 
@@ -305,7 +345,7 @@ var DLTicker = function() {
      * @method initNextTicker
      */
     var initNextTicker = function() {
-        if(currTicker+1 < allTickers.length) {
+        if(currTicker + 1 < allTickers.length) {
             currTicker++;
             init(allTickers[currTicker].id);
         } else {
@@ -317,8 +357,8 @@ var DLTicker = function() {
      * @method aTickerHasStopped
      */
     var aTickerHasStopped = function() {
-        animStackCount--;
-        if (animStackCount === 0) {
+        tickerStackCount--;
+        if (tickerStackCount === 0) {
             if (typeof that.soundstop === 'function') {
                 that.soundstop();
             }
