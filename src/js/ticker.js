@@ -201,8 +201,8 @@ var DLTicker = function() {
             soundSwitch = false;
             that.soundstop();
         } else {
+            soundSwitch = true;
             if (tickerStackCount > 0) {
-                soundSwitch = true;
                 that.soundstart();
             }
         }
