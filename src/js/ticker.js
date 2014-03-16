@@ -78,6 +78,12 @@ var DLTicker = function() {
       * @type {Integer} used to detect how many tickers are still running
       */
     var tickerStackCount = 0;
+    
+     /*
+      * @property
+      * @type {Boolean} used to detect if a text ticker is still running
+      */
+    var textTickerRuns = false;
 
      /*
       * @property
@@ -94,6 +100,7 @@ var DLTicker = function() {
         allNodes   = null;
         currNode   = 0;
         charPos    = 0;
+        textTickerRuns = false;
     };
     
     /*
@@ -151,8 +158,7 @@ var DLTicker = function() {
          * in case tickerjs is already running add additional tickers
          * e.g. state change in angularjs
          */ 
-        var aTickerIsRunning    = (tickerStackCount > 0)?true:false;
-        if (aTickerIsRunning)  {
+        if (textTickerRuns)  {
             if (setTickerIds !== null) {
                 var newTickerLen = setTickerIds.length,
                     i,
@@ -214,7 +220,7 @@ var DLTicker = function() {
      */
     var init = function(divId) {
         var currDiv = document.getElementById(divId);
-        // avoiding errors when switching states to fast
+        // avoiding errors when switching states to fast & tpl is not ready yet
         if (currDiv === null) {
             aTickerHasStopped();
             return;
@@ -240,6 +246,7 @@ var DLTicker = function() {
         }
         
         // draw nodes
+        textTickerRuns           = true;
         currNode                 = 0;
         currDiv.innerHTML        = '';
         currDiv.style.visibility = 'visible';
@@ -261,7 +268,6 @@ var DLTicker = function() {
         var maxValue    = interations * picWidth * -1;
         var spriteTimer;
         initNextTicker();
-
         spriteTimer = setInterval(function() {
           thatDiv.style.backgroundPosition = ( left -= picWidth ) + "px 0px";
           if ( left <= maxValue ) {
@@ -314,7 +320,7 @@ var DLTicker = function() {
      * @param {Object} current DOM div
      */
     var initNextNode = function(currDiv) {
-        if (currNode+1 < allNodes.length) {
+        if (currNode + 1 < allNodes.length) {
             currNode++;
             printNextNode(currDiv);
         } else {
@@ -349,6 +355,7 @@ var DLTicker = function() {
             currTicker++;
             init(allTickers[currTicker].id);
         } else {
+            textTickerRuns = false;
             aTickerHasStopped();
         }
     };
@@ -359,6 +366,7 @@ var DLTicker = function() {
     var aTickerHasStopped = function() {
         tickerStackCount--;
         if (tickerStackCount === 0) {
+            textTickerRuns = false;
             if (typeof that.soundstop === 'function') {
                 that.soundstop();
             }
