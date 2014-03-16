@@ -89,7 +89,7 @@ var DLTicker = function() {
       * @property
       * @type {Boolean} used to set global sound on or off
       */
-    var soundSwitch = true;
+    var soundSwitch = false;
 
     /*
      * @method initObjectVars
